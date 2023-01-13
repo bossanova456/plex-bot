@@ -1,6 +1,5 @@
-const http = require('http');
-const { SlashCommandBuilder } = require('discord.js');
-const { SONARR_URI, SONARR_PORT, SONARR_API_KEY } = require("dotenv").config().parsed;
+const { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+const { searchForShow } = require('../call-services');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -13,35 +12,27 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		const options = {
-			host: SONARR_URI,
-			port: SONARR_PORT,
-			path: '/api/v3/series/lookup?term=' + encodeURIComponent(interaction.options.getString('showname')),
-			method: 'GET',
-			headers: {
-				'X-Api-Key': SONARR_API_KEY,
-				'Content-Type': 'application/json',
-				'Connection': 'keep-alive',
-			},
-		};
+		searchForShow(interaction.options.getString('showname')).then(data => {
+			const paginatedResults = data.slice(0, 5);
 
-		// options.agent = new http.Agent();
+			const row = new ActionRowBuilder()
+				.addComponents(
+					new StringSelectMenuBuilder()
+						.setCustomId('select')
+						.setPlaceholder('Nothing selected')
+						.addOptions(
+							paginatedResults.map(result => {
+								return {
+									selectMenuName: 'search-for-show',
+									label: result.title,
+									description: (result.overview.length > 100 ? result.overview.slice(0, 97) + '...' : result.overview),
+									value: '' + result.tvdbId,
+								};
+							}),
+						),
+				);
 
-		http.request(options, (res) => {
-			console.log(res.statusCode + ": " + res.statusMessage);
-			const body = [];
-			res.on("data", d => {
-				body.push(d);
-			});
-
-			res.on("end", () => {
-				const resData = JSON.parse(Buffer.concat(body).toString());
-				// console.log("Data: " + JSON.stringify(resData));
-			});
-		}).on('error', err => {
-			console.log("Error: " + err);
-		}).end();
-
-		await interaction.editReply('WIP');
+			interaction.editReply({ content: 'Select one of the following:', components: [ row ] });
+		});
 	},
 };
