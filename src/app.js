@@ -5,6 +5,9 @@ const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { DISCORD_TOKEN } = require("dotenv").config().parsed;
 
+// Get methods for response handling
+const { respondToMenuSelection } = require('./sonarr');
+
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
@@ -23,6 +26,7 @@ for (const file of commandFiles) {
 	}
 }
 
+// Slash commands
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
@@ -41,11 +45,22 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
+// Slash command intermediate interactions
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isStringSelectMenu()) return;
+
+	if (interaction.customId === 'select-search') {
+		await interaction.deferReply();
+
+		respondToMenuSelection(interaction);
+	}
+});
+
 // When the client is ready, run this code (only once)
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
 client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
 });
 
-// Log in to Discord with your client's token
+// Log in to Discord
 client.login(DISCORD_TOKEN);

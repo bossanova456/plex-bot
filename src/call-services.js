@@ -37,7 +37,7 @@ const callSonarr = (path, method) => {
 	});
 };
 
-const searchForShow = (showName) => {
+const searchForShow = showName => {
 	return callSonarr(CONSTANTS.SONARR_SEARCH_SERIES_PATH + encodeURIComponent(showName), CONSTANTS.HTTP_GET);
 };
 

@@ -1,5 +1,5 @@
-const { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
-const { searchForShow } = require('../call-services');
+const { SlashCommandBuilder } = require('discord.js');
+const { buildShowSelectMenu } = require('../sonarr');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -12,27 +12,6 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		searchForShow(interaction.options.getString('showname')).then(data => {
-			const paginatedResults = data.slice(0, 5);
-
-			const row = new ActionRowBuilder()
-				.addComponents(
-					new StringSelectMenuBuilder()
-						.setCustomId('select')
-						.setPlaceholder('Nothing selected')
-						.addOptions(
-							paginatedResults.map(result => {
-								return {
-									selectMenuName: 'search-for-show',
-									label: result.title,
-									description: (result.overview.length > 100 ? result.overview.slice(0, 97) + '...' : result.overview),
-									value: '' + result.tvdbId,
-								};
-							}),
-						),
-				);
-
-			interaction.editReply({ content: 'Select one of the following:', components: [ row ] });
-		});
+		buildShowSelectMenu(interaction);
 	},
 };
