@@ -2,7 +2,7 @@ const http = require('http');
 const { SONARR_URI, SONARR_PORT, SONARR_API_KEY } = require("dotenv").config().parsed;
 const CONSTANTS = require('./constants');
 
-const callSonarr = (path, method) => {
+const callSonarr = (path, method, data = null) => {
 	return new Promise(function(resolve, reject) {
 		const options = {
 			host: SONARR_URI,
@@ -17,7 +17,7 @@ const callSonarr = (path, method) => {
 		};
 
 		try {
-			http.request(options, (res) => {
+			const req = http.request(options, (res) => {
 				console.log(res.statusCode + " : " + path + " : " + res.statusMessage);
 
 				const body = [];
@@ -30,7 +30,10 @@ const callSonarr = (path, method) => {
 				});
 			}).on('error', err => {
 				console.log("Error: " + err);
-			}).end();
+			});
+
+			if (data) req.write(JSON.stringify(data));
+			req.end();
 		} catch (e) {
 			reject(e);
 		}
@@ -41,6 +44,16 @@ const searchForShow = showName => {
 	return callSonarr(CONSTANTS.SONARR_SEARCH_SERIES_PATH + encodeURIComponent(showName), CONSTANTS.HTTP_GET);
 };
 
+const addShow = showData => {
+	return callSonarr(CONSTANTS.SONARR_ADD_SERIES_PATH, CONSTANTS.HTTP_POST, showData);
+};
+
+const getRootFolder = () => {
+	return callSonarr(CONSTANTS.SONARR_GET_ROOT_FOLDER_PATH, CONSTANTS.HTTP_GET);
+};
+
 module.exports = {
 	searchForShow,
+	addShow,
+	getRootFolder,
 };

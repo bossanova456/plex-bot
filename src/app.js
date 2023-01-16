@@ -52,7 +52,7 @@ client.on(Events.InteractionCreate, async interaction => {
 	if (interaction.customId === 'select-search') {
 		await interaction.deferReply();
 
-		respondToMenuSelection(interaction);
+		await respondToMenuSelection(interaction);
 	}
 });
 
