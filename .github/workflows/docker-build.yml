@@ -1,6 +1,8 @@
 name: Build & Publish Docker Image
 
 on:
+  push:
+    branches_ignore: [ "main" ]
   workflow_dispatch:
     branches: [ "main" ]
 
