@@ -14,6 +14,6 @@ jobs:
         DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       run: |
         TAG=$(date +%s)
-        docker build --tag plex-bot:${TAG}
+        docker build --tag plex-bot:${TAG} .
         docker login -u bossanova456 -p $env:DOCKER_TOKEN 
         docker push bossanova456/plex-bot:${TAG}
