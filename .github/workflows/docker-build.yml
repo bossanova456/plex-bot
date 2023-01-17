@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Build & Publish Docker Image
 
 on:
   workflow_dispatch:
@@ -9,5 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag plex-bot:$(date +%s)
+    - name: Build and Publish Docker Image
+      env:
+        - DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+      run: |
+        TAG=$(date +%s)
+        docker build --tag plex-bot:${TAG}
+        docker login -u bossanova456 -p $env:DOCKER_TOKEN 
+        docker push bossanova456/plex-bot:${TAG}
