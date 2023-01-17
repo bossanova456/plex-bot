@@ -3,10 +3,19 @@ const path = require('node:path');
 
 // Require the necessary discord.js classes
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const { DISCORD_TOKEN } = require("dotenv").config().parsed;
 
 // Get methods for response handling
 const { respondToMenuSelection } = require('./sonarr');
+
+// Environment variables
+let environment;
+if (process.env.NODE_ENV !== 'production') {
+	environment = require("dotenv").config().parsed;
+} else {
+	environment = process.env;
+}
+
+const { DISCORD_TOKEN } = environment;
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });

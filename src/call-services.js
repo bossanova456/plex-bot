@@ -1,6 +1,15 @@
 const http = require('http');
-const { SONARR_URI, SONARR_PORT, SONARR_API_KEY } = require("dotenv").config().parsed;
 const CONSTANTS = require('./constants');
+
+// Environment variables
+let environment;
+if (process.env.NODE_ENV !== 'production') {
+	environment = require("dotenv").config().parsed;
+} else {
+	environment = process.env;
+}
+
+const { SONARR_URI, SONARR_PORT, SONARR_API_KEY } = environment;
 
 const callSonarr = (path, method, data = null) => {
 	return new Promise(function(resolve, reject) {
