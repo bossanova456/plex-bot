@@ -8,4 +8,4 @@ RUN apk update && apk add bash
 RUN npm install
 
 # CMD [ "node", "src/app.js" ]
-RUN /bin/bash
+CMD [ "/bin/bash" ]
